@@ -2,12 +2,14 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProductsModule } from './products/products.module';
-// import { DatabaseModule } from './database/database.module';
-// import { ProductsService } from './products/products.service';
+import { SETTINGS } from '@src/config/config.constants';
 import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
-  imports: [ProductsModule, MongooseModule.forRoot('mongodb://localhost/nest')],
+  imports: [
+    ProductsModule,
+    MongooseModule.forRoot(SETTINGS.mongodb_connection_uri),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

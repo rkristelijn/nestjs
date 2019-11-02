@@ -127,7 +127,7 @@ export const KEYS = {
 
 ## Add MongoDB and Mongoose
 
-I used `@nestjs/mongoose` using [this](https://medium.com/javascript-in-plain-english/a-crash-course-in-nestjs-cccfc0090a16) tutorial.
+I used `@nestjs/mongoose` using [this](https://medium.com/javascript-in-plain-english/a-crash-course-in-nestjs-cccfc0090a16) tutorial. Using [this commit](https://github.com/rkristelijn/nestjs/commit/b6b197b46dc493648a61aa317d2940f51f5d1311) you can get it up and running, but this readme is now outdated.
 
 - [x] add module `database` by typing `nest g module database`
 - [x] I THINK OPTIONAL: add folder `src/database`
