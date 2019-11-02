@@ -99,11 +99,196 @@ Also NestJs uses [Typescript](https://dev.to/robertcoopercode/get-started-with-t
 
 Hey look! a [similar tutorial](https://medium.com/@amitprabhu/rest-api-using-nestjs-c445d0abc91e) and [another adding GraphQL](https://dev.to/itminds/how-to-architecture-your-javascript-api-using-nestjs-with-a-graphql-api-example-part-1-2-2jcb)
 
+## Adding path resolve
+
+We would like to type:
+
+`import idk from '@src/module'`
+
+and avoid: `import idk from '../../../whatever/module'`
+
+Therefore we need to create an alias '@src' using [module-alias](https://www.npmjs.com/package/module-alias) and follow [this](https://dev.to/larswaechter/path-aliases-with-typescript-in-nodejs-4353) tutorial;
+
+- [x] install `modules-alias`, `npm i -s module-alias`
+- [x] update `./tsconfig.json`: `"baseUrl": "./src", "paths": { "@src/*": ["./*"] },`
+- [x] add to `./package.json`: `"_moduleAliases": { "@src": "dist" }`
+- [x] add to `src/main.ts`: `import 'module-alias/register';`
+
+## Consolidate configuration in a config file:
+
+- [x] create folder `src/config`
+- [x] create file `src/config/constants.ts`:
+
+```ts
+export const KEYS = {
+  mongodb_connection_uri: 'mongodb://localhost:27017/nestjs',
+};
+```
+
 ## Add MongoDB and Mongoose
 
+I used `@nestjs/mongoose` using [this](https://medium.com/javascript-in-plain-english/a-crash-course-in-nestjs-cccfc0090a16) tutorial.
+
+- [x] add module `database` by typing `nest g module database`
+- [x] I THINK OPTIONAL: add folder `src/database`
+- [x] add file `src/database/database.providers.ts`:
+
+```ts
+import * as mongoose from 'mongoose';
+import { KEYS } from '@src/config/config.constants';
+
+export const DATABASE_CONNECTION = 'DATABASE_CONNECTION';
+
+export const databaseProviders = [
+  {
+    provide: DATABASE_CONNECTION,
+    useFactory: (): Promise<typeof mongoose> =>
+      mongoose.connect(KEYS.mongodb_connection_uri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      }),
+  },
+];
 ```
-npm i --save mongoose
-npm i --save-dev @types/mongoose
+
+- [x] update the database module `src/database/database.module.ts`:
+
+```ts
+import { Module } from '@nestjs/common';
+import {
+  databaseProviders,
+  DATABASE_CONNECTION,
+} from '@src/database/database.providers';
+
+@Module({
+  providers: [...databaseProviders],
+  exports: [DATABASE_CONNECTION],
+})
+export class DatabaseModule {}
+```
+
+## Adding Products Interface and Schema
+
+- [x] add module `products` by typing `nest g module product`
+- [x] create `src/products/products.interface.ts`:
+
+```ts
+import { Document } from 'mongoose';
+
+export interface Product {
+  title: string;
+  brand: string;
+  currentPrice: number;
+}
+
+export interface ProductDocument extends Document, Product {}
+```
+
+- [x] create `src/products/products.schema.ts`:
+
+```ts
+import { ObjectId } from 'mongodb';
+import { Model, Schema } from 'mongoose';
+import { ProductDocument } from './products.interface';
+
+export const ProductSchema = new Schema({
+  _id: { type: ObjectId, auto: true },
+  title: String,
+  brand: String,
+  currentPrice: Number,
+});
+
+export type ProductModel = Model<ProductDocument>;
+```
+
+## Add the products Provider
+
+- [x] create `src/products/products.provider.ts`:
+
+```ts
+import { Connection } from 'mongoose';
+import { ProductSchema } from './products.schema';
+import { DATABASE_CONNECTION } from '@src/database/database.providers';
+
+export const PRODUCT_MODEL = 'PRODUCT_MODEL';
+
+export const productsProviders = [
+  {
+    provide: PRODUCT_MODEL,
+    useFactory: (connection: Connection) =>
+      connection.model('Product', ProductSchema),
+    inject: [DATABASE_CONNECTION],
+  },
+];
+```
+
+- [x] update `src/products/products.module.ts`:
+
+```ts
+import { Module } from '@nestjs/common';
+import { DatabaseModule } from '@src/database/database.module';
+import { productsProviders } from '@src/products/products.providers';
+
+@Module({
+  imports: [DatabaseModule],
+  providers: [...productsProviders],
+})
+export class ProductsModule {}
+```
+
+## Add the products controller
+
+- [x] create file `src/products/products.controller.ts`:
+
+```ts
+import { Controller, Get, Post } from '@nestjs/common';
+
+@Controller('products')
+export class ProductsController {
+  @Post()
+  create(): string {
+    return 'This action adds a new product';
+  }
+
+  @Get()
+  findAll(): string {
+    return 'This action returns all products';
+  }
+}
+```
+
+- [x] update `src/app.module.ts`:
+
+```ts
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { ProductsModule } from './products/products.module';
+import { ProductsController } from './products/products.controller'; // << add this line
+import { DatabaseModule } from './database/database.module';
+
+@Module({
+  imports: [ProductsModule, DatabaseModule],
+  controllers: [AppController, ProductsController], // << add productsController
+  providers: [AppService],
+})
+export class AppModule {}
+```
+
+- [x] start your app using `npm run start:dev` and test your work:
+
+![browser GET and postman POST](./img/products.png)
+
+if you get an error: `Cannot find module 'dist/main.js'`, run `npm run build` to refresh the dist folder.
+
+## Connect Mongo to the controller
+
+- [x] execute `nest g service products`:
+
+```
+CREATE /src/products/products.service.spec.ts (474 bytes)
+CREATE /src/products/products.service.ts (92 bytes)
+UPDATE /src/products/products.module.ts (357 bytes)
 ```
 
 ## Original Readme
