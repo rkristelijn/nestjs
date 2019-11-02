@@ -6,8 +6,8 @@ Theses are my NestJS adventures, noted down as I go and learn about NestJS.
 
 My plan
 
-- [ ] getting started
-- [ ] create an endpoint with integration tests
+- [x] getting started
+- [ ] create a RESTful endpoint with integration tests
 - [ ] create auth service
 - [ ] connect with MongoDB
 - [ ] play around with GraphQL
@@ -19,7 +19,92 @@ Assuming you have nothing installed, you will need:
 1. git - you just gotta have git
 2. nvm, node
 3. mongodb
-4. nest globally installed
+4. nest globally installed `npm i -g @nestjs/cli`
+
+## Initial installation
+
+After using `nest new project-name` we have (used `tree -I node_modules`)
+
+```
+├── README.md                    - documentation
+├── nest-cli.json                -
+├── package-lock.json            -
+├── package.json                 - project configuration and scripts
+├── src
+│   ├── app.controller.spec.ts   - test file
+│   ├── app.controller.ts        - Basic controller sample with a route.
+│   ├── app.module.ts            - The root module of the application.
+│   ├── app.service.ts
+│   └── main.ts                  - The entry file of the application
+├── test
+│   ├── app.e2e-spec.ts
+│   └── jest-e2e.json
+├── tsconfig.build.json          - Typescript build config
+├── tsconfig.json                - Typescript config
+└── tslint.json                  - Typescript linting
+
+```
+
+Now is a good time to stick your stuff in git preferable using [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/)
+
+## Initial running
+
+`package.json` consists of a start script, but we want to see what is going on, so we add `DEBUG=*` before the start script
+
+```
+$ npm start
+
+> nestjs@0.0.1 start /nestjs
+> DEBUG=* nest start
+
+  express:application set "x-powered-by" to true +0ms
+  express:application set "etag" to 'weak' +2ms
+  express:application set "etag fn" to [Function: generateETag] +0ms
+  express:application set "env" to 'development' +1ms
+  express:application set "query parser" to 'extended' +0ms
+  express:application set "query parser fn" to [Function: parseExtendedQueryString] +0ms
+  express:application set "subdomain offset" to 2 +0ms
+  express:application set "trust proxy" to false +0ms
+  express:application set "trust proxy fn" to [Function: trustNone] +0ms
+  express:application booting in development mode +1ms
+  express:application set "view" to [Function: View] +0ms
+  express:application set "views" to '/nestjs/views' +0ms
+  express:application set "jsonp callback name" to 'callback' +0ms
+[Nest] 19599   - 02/11/2019, 14:56:52   [NestFactory] Starting Nest application...
+[Nest] 19599   - 02/11/2019, 14:56:52   [InstanceLoader] AppModule dependencies initialized +10ms
+  express:router use '/' query +26ms
+  express:router:layer new '/' +0ms
+  express:router use '/' expressInit +0ms
+  express:router:layer new '/' +0ms
+  express:router use '/' jsonParser +0ms
+  express:router:layer new '/' +1ms
+  express:router use '/' urlencodedParser +0ms
+  express:router:layer new '/' +0ms
+[Nest] 19599   - 02/11/2019, 14:56:52   [RoutesResolver] AppController {/}: +4ms
+  express:router:route new '/' +2ms
+  express:router:layer new '/' +0ms
+  express:router:route get '/' +0ms
+  express:router:layer new '/' +0ms
+[Nest] 19599   - 02/11/2019, 14:56:52   [RouterExplorer] Mapped {/, GET} route +9ms
+  express:router use '/' <anonymous> +9ms
+  express:router:layer new '/' +0ms
+  express:router use '/' <anonymous> +0ms
+  express:router:layer new '/' +0ms
+[Nest] 19599   - 02/11/2019, 14:56:52   [NestApplication] Nest application successfully started +2ms
+```
+
+note it uses the [factory pattern](https://dev.to/duranenmanuel/creating-objects-dynamically-with-factory-pattern-in-javascript-54ah)
+
+Also NestJs uses [Typescript](https://dev.to/robertcoopercode/get-started-with-typescript-in-2019-6hd), [async/await](https://dev.to/gafi/7-reasons-to-always-use-async-await-over-plain-promises-tutorial-4ej9)
+
+Hey look! a [similar tutorial](https://medium.com/@amitprabhu/rest-api-using-nestjs-c445d0abc91e) and [another adding GraphQL](https://dev.to/itminds/how-to-architecture-your-javascript-api-using-nestjs-with-a-graphql-api-example-part-1-2-2jcb)
+
+## Add MongoDB and Mongoose
+
+```
+npm i --save mongoose
+npm i --save-dev @types/mongoose
+```
 
 ## Original Readme
 
