@@ -25,6 +25,12 @@ My plan
 - [ ] create another endpoint
 - [ ] create an nested endpoint (e.g. invoice, invoice-line-items)
 
+**Issues**
+
+- fix: warning: DeprecationWarning: current URL string parser is deprecated, and will be removed in a future version. To use the new parser, pass option `{ useNewUrlParser: true }` to MongoClient.connect.
+  DeprecationWarning: current Server Discovery and Monitoring engine is deprecated, and will be removed in a future version. To use the new Server Discover and Monitoring engine, pass option `{ useUnifiedTopology: true }` to the MongoClient constructor.
+- using: https://github.com/nestjs/nest/issues/530#issuecomment-475277023
+
 ## Getting started
 
 Assuming you have nothing installed, you will need:
@@ -147,7 +153,7 @@ export const KEYS = {
 
 Why? I'm used to using mongoose as an ORM
 
-I used `@nestjs/mongoose` using [this](https://medium.com/javascript-in-plain-english/a-crash-course-in-nestjs-cccfc0090a16) tutorial. Using [this commit](https://github.com/rkristelijn/nestjs/commit/b6b197b46dc493648a61aa317d2940f51f5d1311) you can get it up and running, but this readme is now outdated.
+I used `@nestjs/mongoose` using [this](https://medium.com/javascript-in-plain-english/a-crash-course-in-nestjs-cccfc0090a16) tutorial. Using [this commit](https://github.com/rkristelijn/nestjs/commit/b6b197b46dc493648a61aa317d2940f51f5d1311) you can get it up and running. I've updated this Readme.
 
 ## Adding Products Interface and Schema
 

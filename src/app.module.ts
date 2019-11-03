@@ -8,7 +8,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 @Module({
   imports: [
     ProductsModule,
-    MongooseModule.forRoot(SETTINGS.mongodb_connection_uri),
+    MongooseModule.forRoot(SETTINGS.mongodb_connection_uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

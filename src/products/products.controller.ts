@@ -19,19 +19,19 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
   @Post()
   create(@Body() createItemDTO: CreateItemDTO): Promise<Product> {
-    debug('Post');
+    debug('POST');
     return this.productsService.create(createItemDTO);
   }
 
   @Get()
   async findAll(): Promise<Product[]> {
-    debug('Get');
+    debug('GET');
     return this.productsService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id): Promise<Product> {
-    debug(`Get ${id}`);
+    debug(`GET ${id}`);
     return this.productsService.findOne(id);
   }
 
@@ -40,13 +40,13 @@ export class ProductsController {
     @Body() updateProductDTO: CreateItemDTO,
     @Param('id') id,
   ): Promise<Product> {
-    debug(`Put ${id}`);
+    debug(`PUT ${id}`);
     return this.productsService.update(id, updateProductDTO);
   }
 
   @Delete(':id')
   delete(@Param('id') id): Promise<Product> {
-    debug(`Delete ${id}`);
+    debug(`DELETE ${id}`);
     return this.productsService.delete(id);
   }
 }

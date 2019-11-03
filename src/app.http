@@ -1,0 +1,16 @@
+GET http://localhost:3000
+
+### Console
+#   nest-app:app.controller GET getHello +0ms
+#   nest-app:app.service getHello +0ms
+
+### Response
+# HTTP/1.1 200 OK
+# X-Powered-By: Express
+# Content-Type: text/html; charset=utf-8
+# Content-Length: 12
+# ETag: W/"c-Lve95gjOVATpfV8EL5X4nxwjKHE"
+# Date: Sun, 03 Nov 2019 09:12:11 GMT
+# Connection: close
+
+# Hello World!
