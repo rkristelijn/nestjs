@@ -33,6 +33,7 @@ Assuming you have nothing installed, you will need:
 2. nvm, node
 3. mongodb
 4. nest globally installed `npm i -g @nestjs/cli`
+5. I use Visual Studio Code with these plugins: [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker), [Code Time](https://marketplace.visualstudio.com/items?itemName=softwaredotcom.swdc-vscode), [GitLens](https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens), [Mermaid Editor](https://marketplace.visualstudio.com/items?itemName=tomoyukim.vscode-mermaid-editor), [Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode), [vscode-mindmap](https://marketplace.visualstudio.com/items?itemName=Souche.vscode-mindmap), [yUML](https://marketplace.visualstudio.com/items?itemName=JaimeOlivares.yuml), [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client), [Quokka.js](https://marketplace.visualstudio.com/items?itemName=WallabyJs.quokka-vscode), [Browser Preview](https://marketplace.visualstudio.com/items?itemName=auchenberg.vscode-browser-preview)
 
 ## Initial installation
 
@@ -376,6 +377,10 @@ Now the applications works like this:
 | `PUT /products/5dbdd07b8b15757b28fac944 {"title":"WIP"}` | `{"_id": "5dbdd07b8b15757b28fac944","title": "WIP", "__v": 0}`   |
 | `DELETE /products/5dbdd07b8b15757b28fac944`              | `{"_id": "5dbdd07b8b15757b28fac944","title": "WIP", "__v": 0}`   |
 | `GET /products`                                          | `[]`                                                             |
+
+## Create frontend
+
+Ideally we would like to create an Angular app that sits inside of our current folder, but this would mean we have to set up webpack manually, move our current code to a separate folder and do lots of more configuration. Because currently I'm impatient I just create a new clean repo and enjoy the Angular/cli features while enabling [CORS](https://ionicframework.com/blog/full-stack-typescript-with-ionic-angular-and-nestjs-part-1/)
 
 ## Original Readme
 
