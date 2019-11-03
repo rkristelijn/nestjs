@@ -1,3 +1,6 @@
+import Debug from 'debug';
+const debug = Debug('nest-app:products.controller');
+
 import {
   Controller,
   Post,
@@ -16,16 +19,19 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
   @Post()
   create(@Body() createItemDTO: CreateItemDTO): Promise<Product> {
+    debug('Post');
     return this.productsService.create(createItemDTO);
   }
 
   @Get()
   async findAll(): Promise<Product[]> {
+    debug('Get');
     return this.productsService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id): Promise<Product> {
+    debug(`Get ${id}`);
     return this.productsService.findOne(id);
   }
 
@@ -34,11 +40,13 @@ export class ProductsController {
     @Body() updateProductDTO: CreateItemDTO,
     @Param('id') id,
   ): Promise<Product> {
+    debug(`Put ${id}`);
     return this.productsService.update(id, updateProductDTO);
   }
 
   @Delete(':id')
   delete(@Param('id') id): Promise<Product> {
+    debug(`Delete ${id}`);
     return this.productsService.delete(id);
   }
 }
