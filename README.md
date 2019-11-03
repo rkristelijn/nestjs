@@ -7,10 +7,23 @@ Theses are my NestJS adventures, noted down as I go and learn about NestJS.
 My plan
 
 - [x] getting started
-- [ ] create a RESTful endpoint with integration tests
+- [x] connect with MongoDB
+- [x] create a RESTful endpoint
+  - [ ] add debug lines
+  - [ ] with unit tests
+  - [ ] with integration tests
+- [ ] create frontend
+  - [ ] basic boilerplate
+  - [ ] include GUI lib
+  - [ ] connect with backend
+  - [ ] integrated frontend code base with backend code base
+  - [ ] share functionality
 - [ ] create auth service
-- [ ] connect with MongoDB
+  - [ ] create users endpoint
+  - [ ] create integration test
 - [ ] play around with GraphQL
+- [ ] create another endpoint
+- [ ] create an nested endpoint (e.g. invoice, invoice-line-items)
 
 ## Getting started
 
@@ -101,7 +114,7 @@ Hey look! a [similar tutorial](https://medium.com/@amitprabhu/rest-api-using-nes
 
 ## Adding path resolve
 
-We would like to type:
+Why? We would like to type:
 
 `import idk from '@src/module'`
 
@@ -116,6 +129,10 @@ Therefore we need to create an alias '@src' using [module-alias](https://www.npm
 
 ## Consolidate configuration in a config file:
 
+Why? We don't want hard-coded values in the code, but in an external config file.
+
+todo: investigate .ENV file
+
 - [x] create folder `src/config`
 - [x] create file `src/config/constants.ts`:
 
@@ -127,47 +144,13 @@ export const KEYS = {
 
 ## Add MongoDB and Mongoose
 
+Why? I'm used to using mongoose as an ORM
+
 I used `@nestjs/mongoose` using [this](https://medium.com/javascript-in-plain-english/a-crash-course-in-nestjs-cccfc0090a16) tutorial. Using [this commit](https://github.com/rkristelijn/nestjs/commit/b6b197b46dc493648a61aa317d2940f51f5d1311) you can get it up and running, but this readme is now outdated.
 
-- [x] add module `database` by typing `nest g module database`
-- [x] I THINK OPTIONAL: add folder `src/database`
-- [x] add file `src/database/database.providers.ts`:
-
-```ts
-import * as mongoose from 'mongoose';
-import { KEYS } from '@src/config/config.constants';
-
-export const DATABASE_CONNECTION = 'DATABASE_CONNECTION';
-
-export const databaseProviders = [
-  {
-    provide: DATABASE_CONNECTION,
-    useFactory: (): Promise<typeof mongoose> =>
-      mongoose.connect(KEYS.mongodb_connection_uri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      }),
-  },
-];
-```
-
-- [x] update the database module `src/database/database.module.ts`:
-
-```ts
-import { Module } from '@nestjs/common';
-import {
-  databaseProviders,
-  DATABASE_CONNECTION,
-} from '@src/database/database.providers';
-
-@Module({
-  providers: [...databaseProviders],
-  exports: [DATABASE_CONNECTION],
-})
-export class DatabaseModule {}
-```
-
 ## Adding Products Interface and Schema
+
+We need to type our objects, hence we need interfaces to tell Typescript what is what
 
 - [x] add module `products` by typing `nest g module product`
 - [x] create `src/products/products.interface.ts`:
@@ -184,6 +167,8 @@ export interface Product {
 export interface ProductDocument extends Document, Product {}
 ```
 
+We need to tell Mongo what the structure is of our Document
+
 - [x] create `src/products/products.schema.ts`:
 
 ```ts
@@ -198,29 +183,10 @@ export const ProductSchema = new Schema({
   currentPrice: Number,
 });
 
-export type ProductModel = Model<ProductDocument>;
+export type ProductModel = Model<ProductDocument>; // todo: do we need ProductDocument?
 ```
 
-## Add the products Provider
-
-- [x] create `src/products/products.provider.ts`:
-
-```ts
-import { Connection } from 'mongoose';
-import { ProductSchema } from './products.schema';
-import { DATABASE_CONNECTION } from '@src/database/database.providers';
-
-export const PRODUCT_MODEL = 'PRODUCT_MODEL';
-
-export const productsProviders = [
-  {
-    provide: PRODUCT_MODEL,
-    useFactory: (connection: Connection) =>
-      connection.model('Product', ProductSchema),
-    inject: [DATABASE_CONNECTION],
-  },
-];
-```
+## Include our stuff in the module
 
 - [x] update `src/products/products.module.ts`:
 
@@ -290,6 +256,126 @@ CREATE /src/products/products.service.spec.ts (474 bytes)
 CREATE /src/products/products.service.ts (92 bytes)
 UPDATE /src/products/products.module.ts (357 bytes)
 ```
+
+### Create DTO
+
+from [here](https://github.com/nestjs/nest/issues/1228)
+
+A DTO ((Data Transfer Object) is an object that defines how the data will be sent over the network. We could determine the DTO schema by using TypeScript interfaces, or by simple classes. Nestjs recommend using classes.
+
+DTOs and interfaces are not two distinct things. DTOs can be implemented as either interfaces or classes, and the latter is clearly recommended by the documentation. Either way, you create DTOs that define the shape of data being sent or received.
+
+Interfaces can not compute properties or use decorators, whereas classes can. NestJS recommends to use classes because you can add decorators from `class-validator` to properties such as `@IsString()` or `@Max(20)`. With interfaces such a validation would only be possible outside of the interface context.
+
+- [x] create `src/products/products/products.dto.ts`:
+
+```ts
+export class CreateItemDTO {
+  readonly title: string;
+  readonly brand: string;
+  readonly currentPrice: number;
+}
+```
+
+- [x] update `src/products/products/product.services.ts`:
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { Product, ProductDocument } from './products.interface';
+import { CreateItemDTO } from './products.dto';
+
+@Injectable()
+export class ProductsService {
+  constructor(
+    @InjectModel('Product')
+    private readonly productsModel: Model<ProductDocument>,
+  ) {}
+
+  async create(product: CreateItemDTO): Promise<Product> {
+    const newItem = new this.productsModel(product);
+    return await newItem.save();
+  }
+
+  async findAll(): Promise<Product[]> {
+    return await this.productsModel.find();
+  }
+
+  async findOne(id: string): Promise<Product> {
+    return await this.productsModel.findOne({ _id: id });
+  }
+
+  async update(id: string, item: Product): Promise<Product> {
+    return await this.productsModel.findByIdAndUpdate(id, item, { new: true });
+  }
+
+  async delete(id: string): Promise<Product> {
+    return await this.productsModel.findByIdAndRemove(id);
+  }
+}
+```
+
+- [x] update `src/products/products.controller.ts`:
+
+```ts
+import {
+  Controller,
+  Post,
+  Get,
+  Put,
+  Delete,
+  Param,
+  Body,
+} from '@nestjs/common';
+import { ProductsService } from './products.service';
+import { CreateItemDTO } from './products.dto';
+import { Product } from './products.interface';
+
+@Controller('products')
+export class ProductsController {
+  constructor(private readonly productsService: ProductsService) {}
+  @Post()
+  create(@Body() createItemDTO: CreateItemDTO): Promise<Product> {
+    return this.productsService.create(createItemDTO);
+  }
+
+  @Get()
+  async findAll(): Promise<Product[]> {
+    return this.productsService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id): Promise<Product> {
+    return this.productsService.findOne(id);
+  }
+
+  @Put(':id')
+  update(
+    @Body() updateProductDTO: CreateItemDTO,
+    @Param('id') id,
+  ): Promise<Product> {
+    return this.productsService.update(id, updateProductDTO);
+  }
+
+  @Delete(':id')
+  delete(@Param('id') id): Promise<Product> {
+    return this.productsService.delete(id);
+  }
+}
+```
+
+Now the applications works like this:
+
+| Request                                                  | Response                                                         |
+| -------------------------------------------------------- | ---------------------------------------------------------------- |
+| `GET /products`                                          | `[]`                                                             |
+| `POST /products {"title":"IDK"}`                         | `{"_id": "5dbdd07b8b15757b28fac944","title": "IDK", "__v": 0}`   |
+| `GET /products`                                          | `[{"_id": "5dbdd07b8b15757b28fac944","title": "IDK", "__v": 0}]` |
+| `GET /products/5dbdd07b8b15757b28fac944`                 | `{"_id": "5dbdd07b8b15757b28fac944","title": "IDK", "__v": 0}`   |
+| `PUT /products/5dbdd07b8b15757b28fac944 {"title":"WIP"}` | `{"_id": "5dbdd07b8b15757b28fac944","title": "WIP", "__v": 0}`   |
+| `DELETE /products/5dbdd07b8b15757b28fac944`              | `{"_id": "5dbdd07b8b15757b28fac944","title": "WIP", "__v": 0}`   |
+| `GET /products`                                          | `[]`                                                             |
 
 ## Original Readme
 
